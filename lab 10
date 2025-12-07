@@ -1,0 +1,166 @@
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class StreamTasks {
+
+    // ===================== Завдання 1 =====================
+    // doubling([1,2,3]) -> [2,4,6]
+    public static List<Integer> doubling(List<Integer> nums) {
+        return nums.stream()
+                .map(n -> n * 2)
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 2 =====================
+    // square([1,2,3]) -> [1,4,9]
+    public static List<Integer> square(List<Integer> nums) {
+        return nums.stream()
+                .map(n -> n * n)
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 3 =====================
+    // moreY(["a","b"]) -> ["yay","yby"]
+    public static List<String> moreY(List<String> strings) {
+        return strings.stream()
+                .map(s -> "y" + s + "y")
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 4 =====================
+    // noNeg([1,-2]) -> [1]
+    public static List<Integer> noNeg(List<Integer> nums) {
+        return nums.stream()
+                .filter(n -> n >= 0)
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 5 =====================
+    // no9([1,2,19]) -> [1,2]
+    public static List<Integer> no9(List<Integer> nums) {
+        return nums.stream()
+                .filter(n -> Math.abs(n) % 10 != 9)
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 6 =====================
+    // noZ(["aaa","bbb","aza"]) -> ["aaa","bbb"]
+    public static List<String> noZ(List<String> strings) {
+        return strings.stream()
+                .filter(s -> !s.contains("z"))
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 7 =====================
+    // refinedStrings(["aa","c","aa","bbb"]) -> ["bbb","aa","c"]
+    public static List<String> refinedStrings(List<String> strings) {
+        return strings.stream()
+                .distinct()  // прибираємо дублікати
+                .sorted(Comparator.comparingInt(String::length).reversed())
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 8 =====================
+    // flatten(["John Wick", "AlexMurphy"]) -> ["John","Wick","AlexMurphy"]
+    public static List<String> flatten(List<String> fullNames) {
+        return fullNames.stream()
+                .flatMap(s -> Arrays.stream(s.split(" "))) // split дасть 1 елемент якщо пробілу немає
+                .collect(Collectors.toList());
+    }
+
+    // ===================== Завдання 3 (про товари) =====================
+    // applyDiscountToToys: знайти всі Products з категорією "Toys",
+    // зменшити ціну на 50% і повернути список цих товарів
+    public static List<Product> applyDiscountToToys(List<Product> products) {
+        return products.stream()
+                .filter(p -> "Toys".equals(p.getCategory()))
+                .peek(p -> p.setPrice(p.getPrice() * 0.5))  // -50%
+                .collect(Collectors.toList());
+    }
+}
+
+Моделі з умови (мінімально необхідні гетери/сетери)
+
+class Customer {
+    private Integer id;
+    private String name;
+    private Integer tier;
+
+    public Customer(Integer id, String name, Integer tier) {
+        this.id = id;
+        this.name = name;
+        this.tier = tier;
+    }
+
+    public Integer getId() { return id; }
+    public String getName() { return name; }
+    public Integer getTier() { return tier; }
+}
+
+class Order {
+    private Integer id;
+    private LocalDate orderDate;
+    private LocalDate deliveryDate;
+    private String status;
+    private Customer customer;
+    private Set<Product> products;
+
+    public Order(Integer id, LocalDate orderDate, LocalDate deliveryDate,
+                 String status, Customer customer, Set<Product> products) {
+        this.id = id;
+        this.orderDate = orderDate;
+        this.deliveryDate = deliveryDate;
+        this.status = status;
+        this.customer = customer;
+        this.products = products;
+    }
+
+    public Integer getId() { return id; }
+    public LocalDate getOrderDate() { return orderDate; }
+    public LocalDate getDeliveryDate() { return deliveryDate; }
+    public String getStatus() { return status; }
+    public Customer getCustomer() { return customer; }
+    public Set<Product> getProducts() { return products; }
+}
+
+class Product {
+    private Integer id;
+    private String name;
+    private String category;
+    private Double price;
+    private Set<Order> orders;
+
+    public Product(Integer id, String name, String category, Double price) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.price = price;
+        this.orders = new HashSet<>();
+    }
+
+    public Integer getId() { return id; }
+    public String getName() { return name; }
+    public String getCategory() { return category; }
+    public Double getPrice() { return price; }
+    public void setPrice(Double price) { this.price = price; }
+    public Set<Order> getOrders() { return orders; }
+}
+
+перевірка
+public class Main {
+    public static void main(String[] args) {
+        System.out.println(StreamTasks.doubling(List.of(1,2,3))); // [2,4,6]
+
+        List<Product> products = new ArrayList<>();
+        products.add(new Product(1, "Car", "Toys", 100.0));
+        products.add(new Product(2, "TV", "Electronics", 500.0));
+        products.add(new Product(3, "Doll", "Toys", 80.0));
+
+        List<Product> discounted = StreamTasks.applyDiscountToToys(products);
+        discounted.forEach(p -> System.out.println(p.getName() + " -> " + p.getPrice()));
+        // Car -> 50.0
+        // Doll -> 40.0
+    }
+}
